@@ -5,7 +5,7 @@
 				<v-btn text @click="goAdmin"><v-icon>mdi-chevron-left</v-icon>К списку форм</v-btn>
 			</v-col>
 			<v-col align="right">
-				<v-btn text outlined class="menubtn"><v-icon left>mdi-eye</v-icon>Предпосмотр</v-btn>
+				<v-btn text outlined class="menubtn" @click="openPreview"><v-icon left>mdi-eye</v-icon>Предпосмотр</v-btn>
 				<v-btn color="yellow" class="menubtn" elevation="0"><v-icon left>mdi-share-variant</v-icon>Поделиться</v-btn>
 			</v-col>
 		</v-row>
@@ -13,7 +13,7 @@
 			<v-col cols="3">
 				<v-card elevation="0">
 					<v-hover v-slot:default="{ hover }" v-for="element in elements" :key="element.id">
-						<v-card class="card" :elevation="hover ? 3 : 0" @click="addElement(element.id)">
+						<v-card class="card" :elevation="hover ? 3 : 0" @click="addElement(element)">
 							<v-icon left>{{element.icon}}</v-icon>{{element.title}}
 						</v-card>
 					</v-hover>
@@ -27,8 +27,15 @@
 								<div class="overline mb-4">
 									Страница {{page.id}} из {{pages.length}}
 								</div>
-								<div v-for="element in page.elements" :key="element.id">
-									<Element :element="element" />
+								<div v-if="page.elements.length">
+									<div v-for="element in page.elements" :key="element.id">
+										<LightElement :element="element" />
+									</div>
+								</div>
+								<div v-else>
+									<div class="start">
+										<p>Добваьте вопросы в форму</p>
+									</div>
 								</div>
 							</v-list-item-content>
 						</v-list-item>
@@ -37,19 +44,26 @@
 				<v-btn block x-large @click="addPage">Добавить страницу</v-btn>
 			</v-col>
 		</v-row>
+		<Preview :dialog="dialogPreview" :pages="pages" @close="closePreview" />
+		<CreateElement :dialog="dialogCreateElement" :element="element" @close="closeCreateElement" @save="saveCreateElement" />
 	</v-container>
 </template>
 
 <script>
-	import Element from '@/components/Element.vue'
+	import Preview from '@/components/Preview.vue'
+	import LightElement from '@/components/LightElement.vue'
+	import CreateElement from '@/components/CreateElement.vue'
 
 	export default {
 		name: 'Create',
 		components: {
-			Element
+			LightElement, Preview, CreateElement
 		},
 		data() {
-			return { 
+			return {
+				dialogPreview: false,
+				dialogCreateElement: false,
+				element: null,
 				elements: [
 				{
 					id: 1,
@@ -69,38 +83,37 @@
 				pages: [
 				{
 					id: 1,
-					elements: [
-					{
-						type: 'text-field',
-						label: '',
-						text: ''
-					},
-					{
-						type: 'textarea',
-						label: '',
-						text: ''
-					}
-					]
+					elements: []
 				}
 				]
 			}
 		},
 		methods: {
+			openCreateElement(){
+				this.dialogCreateElement = true;
+			},
+			closeCreateElement(){
+				this.dialogCreateElement = false;
+			},
+			saveCreateElement(element){
+				this.pages[this.pages.length - 1].elements.push(element);
+				this.closeCreateElement();
+			},
+			openPreview(){
+				this.dialogPreview = true;
+			},
+			closePreview(){
+				this.dialogPreview = false;
+			},
 			goAdmin() {
 				this.$router.push({ name: 'Admin' });
 			},
 			addPage() {
 				this.pages.push({ id:2, elements: [] });
 			},
-			addElement(elementId) {
-				let type = null;
-				
-				if (elementId == 1) { type = 'text-field'; }
-				else if (elementId == 2) { type = 'textarea'; }
-				else { type = 'text'; }
-
-				this.pages[this.pages.length - 1].elements.push({ type: type, label: '', text: '' });
-				elementId;
+			addElement(element) {
+				this.element = element;
+				this.openCreateElement();
 			}
 		}
 	}
@@ -117,5 +130,17 @@
 }
 .menubtn {
 	margin-left: 10px;
+}
+.start {
+	border: 3px dashed grey;
+	height: 150px;
+	line-height: 150px;
+}
+.start p {
+	font-size: 18px;
+	color: grey;
+	text-align: center;
+	white-space: nowrap;
+	overflow: hidden;
 }
 </style>

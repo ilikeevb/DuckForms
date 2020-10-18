@@ -2,7 +2,9 @@
   <v-app>
     <v-app-bar app color="primary" dark>
       <div class="d-flex" @click="goHome">
-        <h1><b>Forms</b></h1>
+        <h1 class="title font-weight-light">
+          <v-icon large left>mdi-duck</v-icon><b>Duck</b>Forms
+        </h1>
       </div>
       <v-spacer></v-spacer>
     </v-app-bar>

@@ -1,11 +1,16 @@
 <template>
   <div>
-    <div v-if="element.label"><p class="label">{{element.label}}</p></div>
     <div v-if="element.type == 'text-field'">
-      <v-text-field outlined></v-text-field>
+      <div><p class="label">{{element.label}}</p></div>
+      <v-text-field :hint="element.text" persistent-hint outlined></v-text-field>
     </div>
     <div v-if="element.type == 'textarea'">
-      <v-textarea outlined></v-textarea>
+      <div><p class="label">{{element.label}}</p></div>
+      <v-textarea :hint="element.text" persistent-hint outlined></v-textarea>
+    </div>
+    <div v-if="element.type == 'text'">
+      <p class="label"><b>{{element.label}}</b></p>
+      <p class="text">{{element.text}}</p>
     </div>
   </div>
 </template>
@@ -29,5 +34,8 @@
 <style scoped>
 .label {
   font-size: 18px;
+}
+.text {
+  font-size: 16px;
 }
 </style>
