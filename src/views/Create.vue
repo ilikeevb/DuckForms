@@ -79,7 +79,18 @@
 					id: 3,
 					title: 'Текст без вопроса',
 					icon: 'mdi-text'	
-				}],
+				},
+				{
+					id: 4,
+					title: 'Один вариант',
+					icon: 'mdi-radiobox-marked'
+				},
+				{
+					id: 5,
+					title: 'Несколько вариантов',
+					icon: 'mdi-check-box-outline'
+				}
+				],
 				pages: [
 				{
 					id: 1,

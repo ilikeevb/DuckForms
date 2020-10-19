@@ -8,21 +8,21 @@
 				<v-icon left>{{element.icon}}</v-icon>{{element.title}}
 			</v-card-subtitle>
 			<v-divider></v-divider>
+			<br>
 			<div v-if="element.id==1 || element.id==2">
-				<p class="label">Вопрос</p>
-				<v-text-field v-model="label" outlined></v-text-field>
-				<p class="label">Коментарий</p>
-				<v-text-field v-model="text" outlined></v-text-field>
+				<Question v-model="label" label="Вопрос" />
+				<Question v-model="text" label="Комментарий" />
 			</div>
 			<div v-if="element.id==3">
-				<p class="label">Заголовок</p>
-				<v-text-field v-model="label" outlined></v-text-field>
-				<p class="label">Текст</p>
-				<v-textarea v-model="text" outlined></v-textarea>
+				<Question v-model="label" label="Заголовок" />
+				<TextArea v-model="text" label="Текст"/>
 			</div>
-			<v-divider style="padding-bottom: 20px;"></v-divider>
-			<div>
-				<Element :element="{label: label, text: text, type: typer()}" />
+			<div v-if="element.id==4">
+				<Question v-model="label" label="Вопрос" />
+				<RadioButtons :values="values" />
+			</div>
+			<div v-if="element.id==5">
+				<CheckBox />
 			</div>
 			<v-card-actions>
 				<v-btn @click="close" text outlined>Отмена</v-btn>
@@ -33,19 +33,23 @@
 </template>
 
 <script>
-	import Element from '@/components/Element.vue'
+	import Question from '@/components/CreateElementsFolder/Question.vue'
+	import TextArea from '@/components/CreateElementsFolder/TextArea.vue'
+	import RadioButtons from '@/components/CreateElementsFolder/RadioButtons.vue'
+	import CheckBox from '@/components/CreateElementsFolder/CheckBox.vue'
 
 	export default {
 		name: 'CreateElement',
 		components: {
-			Element
+			Question, TextArea, RadioButtons, CheckBox
 		},
 		props: ['dialog', 'element'],
 		data() {
 			return {
 				label: "",
 				text: "",
-				type: ""
+				type: "",
+				values: []
 			}
 		},
 		methods: {
@@ -53,7 +57,13 @@
 				this.$emit('close');
 			},
 			save(){
-				let element = { label: this.label, text: this.text, type: this.typer() };
+				let element = { label: this.label, text: this.text, type: this.typer(), values: this.values };
+
+				this.label = "";
+				this.text = "";
+				this.type = "";
+				this.values = [];
+				
 				this.$emit('save', element);
 			},
 			typer(){
@@ -67,6 +77,12 @@
 					break;
 					case 3:
 					type = "text"
+					break;
+					case 4:
+					type = "radio"
+					break;
+					case 5:
+					type = "checkbox"
 					break;
 					default:
 					type = "text-field"

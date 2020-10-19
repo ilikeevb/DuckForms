@@ -12,6 +12,16 @@
       <p class="label"><b>{{element.label}}</b></p>
       <p class="text">{{element.text}}</p>
     </div>
+    <div v-if="element.type == 'radio'">
+      <div><p class="label">{{element.label}}</p></div>
+      <v-radio v-for="(radio, index) in element.values" :key="index" :label="`${radio.label}`" :value="index"></v-radio>
+      <br>
+    </div>
+    <div v-if="element.type == 'checkbox'">
+      <div v-for="(checkbox, index) in element.values" :key="index">
+        <v-checkbox v-model="checkbox.check" :label="checkbox.label"></v-checkbox>
+      </div>
+    </div>
   </div>
 </template>
 
