@@ -13,32 +13,49 @@
 				<v-tabs-items v-model="tab">
 					<v-tab-item>
 						<v-form>
-							<v-text-field label="Фамилия Имя" required outlined></v-text-field>
-							<v-text-field label="Почта" required outlined></v-text-field>
-							<v-text-field label="Пароль" type="password" required outlined></v-text-field>
+							<v-text-field v-model="email" label="Почта" required outlined></v-text-field>
+							<v-text-field v-model="password" label="Пароль" type="password" required outlined></v-text-field>
+							<v-btn color="success" large @click="createUser">Создать аккаунт</v-btn>
 						</v-form>
 					</v-tab-item>
 					<v-tab-item>
 						<v-form>
-							<v-text-field label="Почта" required outlined></v-text-field>
-							<v-text-field label="Пароль" type="password" required outlined></v-text-field>
+							<v-text-field v-model="email" label="Почта" required outlined></v-text-field>
+							<v-text-field v-model="password" label="Пароль" type="password" required outlined></v-text-field>
+							<v-btn color="success" large @click="loginUser">Войти</v-btn>
 						</v-form>
 					</v-tab-item>
 				</v-tabs-items>
-				<v-btn color="success" large>Создать аккаунт</v-btn>
 			</div>
 		</v-col>
 	</v-row>
 </template>
 
 <script>
+	import { auth } from '../main';
 	export default {
 		name: 'Login',
 		components: {
 		},
 		data() {
 			return { 
-				tab: null
+				tab: null,
+				email: '',
+				password: ''
+			}
+		},
+		methods: {
+			createUser() {
+				auth.createUserWithEmailAndPassword(this.email, this.password).then((user) => {
+					user;
+					this.$router.replace('/admin');
+				});
+			},
+			loginUser() {
+				auth.signInWithEmailAndPassword(this.email, this.password).then((user) => {
+					console.log(user);
+					this.$router.push('/admin');
+				});
 			}
 		}
 	}

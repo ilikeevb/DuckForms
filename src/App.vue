@@ -7,6 +7,12 @@
         </h1>
       </div>
       <v-spacer></v-spacer>
+      <div v-if="user">
+        {{userEmail}}
+      </div>
+      <div v-else>
+        <v-btn color="yellow" light elevation="0" large @click="goLogin">Попробовать</v-btn>
+      </div>
     </v-app-bar>
 
     <v-main>
@@ -16,11 +22,31 @@
 </template>
 
 <script>
+  import { auth } from './main';
+
   export default {
     name: 'App',
+    data() {
+      return {
+        user: null,
+        userEmail: ''
+      }
+    },
+    created() {
+      let vm = this;
+      auth.onAuthStateChanged(function(user) {
+       if (user) {
+         vm.user = user;
+         vm.userEmail = vm.user.email;
+       }
+     });
+    },
     methods: {
       goHome() {
         this.$router.push({ name: 'Home' });
+      },
+      goLogin() {
+        this.$router.push({ name: 'Login' });
       }
     }
   };
