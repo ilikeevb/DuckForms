@@ -36,6 +36,8 @@
 </template>
 
 <script>
+	import { db } from '../main';
+
 	export default {
 		name: 'Admin',
 		components: {
@@ -63,7 +65,10 @@
 				});
 			},
 			goCreate() {
-				this.$router.push({ name: 'Create' });
+				let data = { pages: [{ id: 1, elements: [] }] };
+				db.collection("form").add(data).then((docRef) => {
+					this.$router.replace({ name: 'Create', params: { id: docRef.id }})
+				});
 			}
 		}
 	}

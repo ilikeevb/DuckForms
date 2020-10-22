@@ -1,5 +1,5 @@
 <template>
-	<v-container>
+	<v-container v-if="form">
 		<v-row>
 			<v-col>
 				<v-btn text @click="goAdmin"><v-icon>mdi-chevron-left</v-icon>К списку форм</v-btn>
@@ -20,12 +20,12 @@
 				</v-card>
 			</v-col>
 			<v-col cols="9">
-				<div v-for="page in pages" :key="page.id">
+				<div v-for="page in form.pages" :key="page.id">
 					<v-card elevation="3" class="page">
 						<v-list-item>
 							<v-list-item-content>
 								<div class="overline mb-4">
-									Страница {{page.id}} из {{pages.length}}
+									Страница {{page.id}} из {{form.pages.length}}
 								</div>
 								<div v-if="page.elements.length">
 									<div v-for="element in page.elements" :key="element.id">
@@ -44,23 +44,31 @@
 				<v-btn block x-large @click="addPage">Добавить страницу</v-btn>
 			</v-col>
 		</v-row>
-		<Preview :dialog="dialogPreview" :pages="pages" @close="closePreview" />
+		<DialogPreview :dialog="dialogPreview" :pages="form.pages" @close="closePreview" />
 		<CreateElement :dialog="dialogCreateElement" :element="element" @close="closeCreateElement" @save="saveCreateElement" />
 	</v-container>
 </template>
 
 <script>
-	import Preview from '@/components/Preview.vue'
+	import { auth, db } from '../main';
+
+	import DialogPreview from '@/components/DialogPreview.vue'
 	import LightElement from '@/components/LightElement.vue'
 	import CreateElement from '@/components/CreateElement.vue'
 
 	export default {
 		name: 'Create',
 		components: {
-			LightElement, Preview, CreateElement
+			LightElement, DialogPreview, CreateElement
+		},
+		firestore() {
+			return {
+				form: db.collection('form').doc(this.$route.params.id)
+			}
 		},
 		data() {
 			return {
+				form: null,
 				dialogPreview: false,
 				dialogCreateElement: false,
 				element: null,
@@ -90,12 +98,6 @@
 					title: 'Несколько вариантов',
 					icon: 'mdi-check-box-outline'
 				}
-				],
-				pages: [
-				{
-					id: 1,
-					elements: []
-				}
 				]
 			}
 		},
@@ -107,7 +109,8 @@
 				this.dialogCreateElement = false;
 			},
 			saveCreateElement(element){
-				this.pages[this.pages.length - 1].elements.push(element);
+				this.form.pages[this.form.pages.length - 1].elements.push(element);
+				this.update();
 				this.closeCreateElement();
 			},
 			openPreview(){
@@ -120,12 +123,28 @@
 				this.$router.push({ name: 'Admin' });
 			},
 			addPage() {
-				this.pages.push({ id:2, elements: [] });
+				this.form.pages.push({ id:2, elements: [] });
+				this.update();
 			},
 			addElement(element) {
 				this.element = element;
 				this.openCreateElement();
+			},
+			update() {
+				let batch = db.batch();
+				let sf = db.collection('form').doc(this.$route.params.id);
+				batch.update(sf, { "pages": this.form.pages });
+				batch.commit();
 			}
+		},
+		created() {
+			let vm = this;
+			auth.onAuthStateChanged(function(user) {
+				if (!user) {
+					vm.$router.push('/login');
+				}
+			});
+			document.title = "Создание формы";
 		}
 	}
 </script>
